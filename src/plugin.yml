@@ -1,0 +1,9 @@
+name: JoinTime
+version: 1.0
+author: Kyrobi
+main: me.kyrobi.Main
+api-version: '1.18'
+description: Plugin to get when the user first joined the server
+commands:
+  jointime:
+    description: Get the join time
