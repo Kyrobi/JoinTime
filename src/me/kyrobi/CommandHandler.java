@@ -21,8 +21,8 @@ public class CommandHandler implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String label, String[] args){
 
-        if(commandSender instanceof Player) {
-            final Player playerSender = (Player) commandSender; //Cast commandSender to player
+        //if(commandSender instanceof Player) {
+            //final Player playerSender = (Player) commandSender; //Cast commandSender to player
 
 
             if (args.length == 1) {
@@ -39,7 +39,8 @@ public class CommandHandler implements CommandExecutor {
                 if (player == null) {
                     //If previously data doesn't exist, we made sure they don't exist and then exit
                     if (Bukkit.getOfflinePlayer(args[0]).getFirstPlayed() == 0) {
-                        playerSender.sendMessage((ChatColor.translateAlternateColorCodes('&', prefix)) + ChatColor.AQUA + args[0] + ChatColor.RED + " has never joined the server!");
+                        commandSender.sendMessage((ChatColor.translateAlternateColorCodes('&', prefix)) + ChatColor.AQUA + args[0] + ChatColor.RED + " has never joined the server!");
+                        //commandSender.sendMessage("test");
                         return true;
                     }
 
@@ -50,12 +51,12 @@ public class CommandHandler implements CommandExecutor {
                         if (database.ifExist(Bukkit.getOfflinePlayer(args[0]).getUniqueId().toString())) {
                             uuid = Bukkit.getOfflinePlayer(args[0]).getUniqueId().toString();
                             time = database.getTime(uuid);
-                            playerSender.sendMessage((ChatColor.translateAlternateColorCodes('&', prefix)) + ChatColor.AQUA + args[0] + ChatColor.GREEN + " joined on " + millisecondsToDate(time));
+                            commandSender.sendMessage((ChatColor.translateAlternateColorCodes('&', prefix)) + ChatColor.AQUA + args[0] + ChatColor.GREEN + " joined on " + millisecondsToDate(time));
                             return true;
                         }
 
                         //If it's not in the database, we pull from playerdata and then write it to database
-                        playerSender.sendMessage((ChatColor.translateAlternateColorCodes('&', prefix)) + ChatColor.AQUA + args[0] + ChatColor.GREEN + " joined on " + millisecondsToDate(Bukkit.getOfflinePlayer(args[0]).getFirstPlayed()));
+                        commandSender.sendMessage((ChatColor.translateAlternateColorCodes('&', prefix)) + ChatColor.AQUA + args[0] + ChatColor.GREEN + " joined on " + millisecondsToDate(Bukkit.getOfflinePlayer(args[0]).getFirstPlayed()));
                         if (!database.ifExist(Bukkit.getOfflinePlayer(args[0]).getUniqueId().toString())) {
                             database.insert(Bukkit.getOfflinePlayer(args[0]).getUniqueId().toString(), Bukkit.getOfflinePlayer(args[0]).getFirstPlayed());
                         }
@@ -66,14 +67,14 @@ public class CommandHandler implements CommandExecutor {
                 //Assuming the player is online and exist, we pull data from the database
                 time = database.getTime(player.getUniqueId().toString());
                 //System.out.println("PLAYER ONLINE RETURNS " + database.getTime(player.getUniqueId().toString()));
-                playerSender.sendMessage((ChatColor.translateAlternateColorCodes('&', prefix)) + ChatColor.AQUA + args[0] + ChatColor.GREEN + " joined on " + millisecondsToDate(time));
+                commandSender.sendMessage((ChatColor.translateAlternateColorCodes('&', prefix)) + ChatColor.AQUA + args[0] + ChatColor.GREEN + " joined on " + millisecondsToDate(time));
             } else {
                 String prefix = this.plugin.getConfig().getString("prefix");
-                playerSender.sendMessage((ChatColor.translateAlternateColorCodes('&', prefix)) + ChatColor.RED + "Usage: /jointime (username)");
+                commandSender.sendMessage((ChatColor.translateAlternateColorCodes('&', prefix)) + ChatColor.RED + "Usage: /jointime (username)");
             }
             return false;
-        }
-        return false;
+        //}
+        //return false;
     }
 
 
