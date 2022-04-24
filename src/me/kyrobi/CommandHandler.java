@@ -7,7 +7,13 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 import java.util.UUID;
 
 public class CommandHandler implements CommandExecutor {
@@ -51,12 +57,12 @@ public class CommandHandler implements CommandExecutor {
                         if (database.ifExist(Bukkit.getOfflinePlayer(args[0]).getUniqueId().toString())) {
                             uuid = Bukkit.getOfflinePlayer(args[0]).getUniqueId().toString();
                             time = database.getTime(uuid);
-                            commandSender.sendMessage((ChatColor.translateAlternateColorCodes('&', prefix)) + ChatColor.AQUA + args[0] + ChatColor.GREEN + " joined on " + millisecondsToDate(time));
+                            commandSender.sendMessage((ChatColor.translateAlternateColorCodes('&', prefix)) + ChatColor.AQUA + args[0] + ChatColor.GREEN + " joined on " + millisecondsToDate(time) + ChatColor.GRAY + " \n(" + millisecondsToTimeStamp(time) + " ago)") ;
                             return true;
                         }
 
                         //If it's not in the database, we pull from playerdata and then write it to database
-                        commandSender.sendMessage((ChatColor.translateAlternateColorCodes('&', prefix)) + ChatColor.AQUA + args[0] + ChatColor.GREEN + " joined on " + millisecondsToDate(Bukkit.getOfflinePlayer(args[0]).getFirstPlayed()));
+                        commandSender.sendMessage((ChatColor.translateAlternateColorCodes('&', prefix)) + ChatColor.AQUA + args[0] + ChatColor.GREEN + " joined on " + millisecondsToDate(Bukkit.getOfflinePlayer(args[0]).getFirstPlayed()) );
                         if (!database.ifExist(Bukkit.getOfflinePlayer(args[0]).getUniqueId().toString())) {
                             database.insert(Bukkit.getOfflinePlayer(args[0]).getUniqueId().toString(), Bukkit.getOfflinePlayer(args[0]).getFirstPlayed());
                         }
@@ -67,7 +73,7 @@ public class CommandHandler implements CommandExecutor {
                 //Assuming the player is online and exist, we pull data from the database
                 time = database.getTime(player.getUniqueId().toString());
                 //System.out.println("PLAYER ONLINE RETURNS " + database.getTime(player.getUniqueId().toString()));
-                commandSender.sendMessage((ChatColor.translateAlternateColorCodes('&', prefix)) + ChatColor.AQUA + args[0] + ChatColor.GREEN + " joined on " + millisecondsToDate(time));
+                commandSender.sendMessage((ChatColor.translateAlternateColorCodes('&', prefix)) + ChatColor.AQUA + args[0] + ChatColor.GREEN + " joined on " + millisecondsToDate(time) + ChatColor.GRAY + " \n(" + millisecondsToTimeStamp(time) + " ago)");
             } else {
                 String prefix = this.plugin.getConfig().getString("prefix");
                 commandSender.sendMessage((ChatColor.translateAlternateColorCodes('&', prefix)) + ChatColor.RED + "Usage: /jointime (username)");
@@ -148,5 +154,33 @@ public class CommandHandler implements CommandExecutor {
         }
         date = String.valueOf(String.valueOf(monthToName)) + " " + mDay + ", " + mYear;
         return date;
+    }
+
+    private String millisecondsToTimeStamp(long milliSeconds) {
+
+        Calendar calendar = Calendar.getInstance();
+        long currentMillis = calendar.getTimeInMillis();
+
+        double different = currentMillis - milliSeconds; // long upTime = bean.getUptime(); Time in ms
+
+        double secondsInMilli = 1000;
+        double minutesInMilli = secondsInMilli * 60;
+        double hoursInMilli = minutesInMilli * 60;
+        double daysInMilli = hoursInMilli * 24;
+        double monthsInMilli = daysInMilli * 30.4375; //Roughly than many days in a month including leap year and months containing 30 / 31 days
+        double yearsInMilli = monthsInMilli * 12;
+
+        double years = different / yearsInMilli;
+        different = different % yearsInMilli;
+
+        double months = different / monthsInMilli;
+        different = different % monthsInMilli;
+
+        double days = different / daysInMilli;
+
+
+        //System.out.println((int)years + "y " + (int)months + "m " + (int)days +"d");
+        String elaspedTime = (int)years + "y " + (int)months + "m " + (int)days +"d";
+        return elaspedTime;
     }
 }
