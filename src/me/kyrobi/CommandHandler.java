@@ -6,19 +6,13 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
-import java.util.UUID;
 
 public class CommandHandler implements CommandExecutor {
 
-    private Main plugin;
+    Main plugin;
 
     public CommandHandler(final Main plugin){
         this.plugin = plugin;
@@ -32,48 +26,57 @@ public class CommandHandler implements CommandExecutor {
 
 
             if (args.length == 1) {
-                long time;
-                String uuid;
-                String prefix = this.plugin.getConfig().getString("prefix");
-                Player player;
-                DatabaseHandler database = new DatabaseHandler();
 
-                //Get the player the player is requesting
-                player = Bukkit.getPlayer(args[0]);
+                new BukkitRunnable() {
+                    public void run()
+                    {
+                        long time;
+                        String uuid;
+                        String prefix = plugin.getConfig().getString("prefix");
+                        Player player;
+                        DatabaseHandler database = new DatabaseHandler();
 
-                //If the player is not online, we check if they have previously saved data
-                if (player == null) {
-                    //If previously data doesn't exist, we made sure they don't exist and then exit
-                    if (Bukkit.getOfflinePlayer(args[0]).getFirstPlayed() == 0) {
-                        commandSender.sendMessage((ChatColor.translateAlternateColorCodes('&', prefix)) + ChatColor.AQUA + args[0] + ChatColor.RED + " has never joined the server!");
-                        //commandSender.sendMessage("test");
-                        return true;
-                    }
+                        //Get the player the player is requesting
+                        player = Bukkit.getPlayer(args[0]);
 
-                    //Previously player data exist, we try to fetch data from database
-                    else {
+                        //If the player is not online, we check if they have previously saved data
+                        if (player == null) {
+                            //If previously data doesn't exist, we made sure they don't exist and then exit
+                            if (Bukkit.getOfflinePlayer(args[0]).getFirstPlayed() == 0) {
+                                commandSender.sendMessage((ChatColor.translateAlternateColorCodes('&', prefix)) + ChatColor.AQUA + args[0] + ChatColor.RED + " has never joined the server!");
+                                //commandSender.sendMessage("test");
+                                return;
+                            }
 
-                        //First check if it exists in the database. If so, we print it first
-                        if (database.ifExist(Bukkit.getOfflinePlayer(args[0]).getUniqueId().toString())) {
-                            uuid = Bukkit.getOfflinePlayer(args[0]).getUniqueId().toString();
-                            time = database.getTime(uuid);
-                            commandSender.sendMessage((ChatColor.translateAlternateColorCodes('&', prefix)) + ChatColor.AQUA + args[0] + ChatColor.GREEN + " joined on " + millisecondsToDate(time) + ChatColor.GRAY + " \n(" + millisecondsToTimeStamp(time) + " ago)") ;
-                            return true;
+                            //Previously player data exist, we try to fetch data from database
+                            else {
+                                //First check if it exists in the database. If so, we print it first
+                                if (database.ifExist(Bukkit.getOfflinePlayer(args[0]).getUniqueId().toString())) {
+                                    uuid = Bukkit.getOfflinePlayer(args[0]).getUniqueId().toString();
+                                    time = database.getTime(uuid);
+                                    commandSender.sendMessage((ChatColor.translateAlternateColorCodes('&', prefix)) + ChatColor.AQUA + args[0] + ChatColor.GREEN + " joined on " + millisecondsToDate(time) + ChatColor.GRAY + " \n(" + millisecondsToTimeStamp(time) + " ago)") ;
+                                    System.out.println("Offline player exists in the database");
+                                    return;
+                                }
+
+                                //If it's not in the database, we pull from playerdata and then write it to database
+                                commandSender.sendMessage((ChatColor.translateAlternateColorCodes('&', prefix)) + ChatColor.AQUA + args[0] + ChatColor.GREEN + " joined on " + millisecondsToDate(Bukkit.getOfflinePlayer(args[0]).getFirstPlayed()) );
+                                if (!database.ifExist(Bukkit.getOfflinePlayer(args[0]).getUniqueId().toString())) {
+                                    System.out.println("Offline player does not in the database");
+                                    database.insert(Bukkit.getOfflinePlayer(args[0]).getUniqueId().toString(), Bukkit.getOfflinePlayer(args[0]).getFirstPlayed());
+                                }
+                            }
+                            return;
                         }
 
-                        //If it's not in the database, we pull from playerdata and then write it to database
-                        commandSender.sendMessage((ChatColor.translateAlternateColorCodes('&', prefix)) + ChatColor.AQUA + args[0] + ChatColor.GREEN + " joined on " + millisecondsToDate(Bukkit.getOfflinePlayer(args[0]).getFirstPlayed()) );
-                        if (!database.ifExist(Bukkit.getOfflinePlayer(args[0]).getUniqueId().toString())) {
-                            database.insert(Bukkit.getOfflinePlayer(args[0]).getUniqueId().toString(), Bukkit.getOfflinePlayer(args[0]).getFirstPlayed());
-                        }
+                        //Assuming the player is online and exist, we pull data from the database
+                        time = database.getTime(player.getUniqueId().toString());
+                        //System.out.println("PLAYER ONLINE RETURNS " + database.getTime(player.getUniqueId().toString()));
+                        commandSender.sendMessage((ChatColor.translateAlternateColorCodes('&', prefix)) + ChatColor.AQUA + args[0] + ChatColor.GREEN + " joined on " + millisecondsToDate(time) + ChatColor.GRAY + " \n(" + millisecondsToTimeStamp(time) + " ago)");
+                        System.out.println("Getting data of online player");
                     }
-                    return true;
-                }
+                }.runTaskAsynchronously(plugin);
 
-                //Assuming the player is online and exist, we pull data from the database
-                time = database.getTime(player.getUniqueId().toString());
-                //System.out.println("PLAYER ONLINE RETURNS " + database.getTime(player.getUniqueId().toString()));
-                commandSender.sendMessage((ChatColor.translateAlternateColorCodes('&', prefix)) + ChatColor.AQUA + args[0] + ChatColor.GREEN + " joined on " + millisecondsToDate(time) + ChatColor.GRAY + " \n(" + millisecondsToTimeStamp(time) + " ago)");
             } else {
                 String prefix = this.plugin.getConfig().getString("prefix");
                 commandSender.sendMessage((ChatColor.translateAlternateColorCodes('&', prefix)) + ChatColor.RED + "Usage: /jointime (username)");

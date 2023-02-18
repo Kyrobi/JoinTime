@@ -15,6 +15,7 @@ public class Main extends JavaPlugin {
     public void onEnable(){
         console = Bukkit.getServer().getConsoleSender();
         this.getCommand("jointime").setExecutor((CommandExecutor)new CommandHandler(this)); //Registers the command
+        this.getCommand("jointimeupdate").setExecutor((CommandExecutor)new UpdateCommand(this)); //Registers the command
         this.saveDefaultConfig();
 
         DatabaseHandler sqlite = new DatabaseHandler();
