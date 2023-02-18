@@ -18,6 +18,9 @@ public class UpdateCommand implements CommandExecutor {
 
     private Main plugin;
 
+    /*
+    jointime update command
+     */
     public UpdateCommand(final Main plugin){
         this.plugin = plugin;
     }
@@ -33,18 +36,12 @@ public class UpdateCommand implements CommandExecutor {
             return false;
         }
         if (args.length == 2) {
+            String uuid = args[0];
+            long time = Long.parseLong(args[1]);
 
-            new BukkitRunnable() {
-                public void run()
-                {
-                    String uuid = args[0];
-                    long time = Long.parseLong(args[1]);
-
-                    DatabaseHandler database = new DatabaseHandler();
-                    System.out.println("UUID: " + uuid + " Time: " + time);
-                    database.update(uuid, time);
-                }
-            }.runTaskAsynchronously(plugin);
+            DatabaseHandler database = new DatabaseHandler();
+            System.out.println("UUID: " + uuid + " Time: " + time);
+            database.update(uuid, time);
 
         } else {
             String prefix = this.plugin.getConfig().getString("prefix");
