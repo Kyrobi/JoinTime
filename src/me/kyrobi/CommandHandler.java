@@ -73,7 +73,6 @@ public class CommandHandler implements CommandExecutor {
                         commandSender.sendMessage((ChatColor.translateAlternateColorCodes('&', prefix)) + ChatColor.AQUA + args[0] + ChatColor.GREEN + " joined on " + millisecondsToDate(time) + ChatColor.GRAY + " \n(" + millisecondsToTimeStamp(time) + " ago)");
                         System.out.println("Getting data of online player");
                     }
-
                 }.runTaskAsynchronously(plugin);
 
             } else {

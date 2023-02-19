@@ -33,26 +33,20 @@ public class DatabaseHandler {
 
     //Checks if a key already exists in the database.
     public boolean ifExist(String uuid){
-        String selectfrom = "SELECT * FROM users";
-        //String selectfrom2 = "SELECT EXISTS(SELECT 1 FROM users WHERE uuid=? LIMIT 1);";
+        String selectfrom = "SELECT EXISTS(SELECT 1 FROM users WHERE uuid=?);";
 
         try(Connection conn = DriverManager.getConnection(url)){
             Class.forName("org.sqlite.JDBC");
-            Statement stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(selectfrom); // Execute the command
+            PreparedStatement stmt = conn.prepareStatement(selectfrom);
 
-            //We loop through the database. If the userID matches, we break out of the loop
-            while(rs.next()){
-//                conn.close();
-//                return true;
-//            }
-                    if(Objects.equals(rs.getString("uuid"), uuid)){
-                        rs.close();
-                        conn.close();
-                        return true; // Breaks out of the loop once the value has been found. No need to loop through the rest of the database
-                    }
-                }
-            }
+            stmt.setString(1, uuid);
+
+            ResultSet rs = stmt.executeQuery(); // Execute the command
+
+            int value = rs.getInt(1);
+            if(value == 1) return true;
+            else return false;
+        }
         catch(SQLException e){
             e.printStackTrace();
             System.out.println("Error code: " + e.getMessage());
