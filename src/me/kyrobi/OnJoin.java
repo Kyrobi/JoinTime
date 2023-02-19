@@ -24,19 +24,30 @@ public class OnJoin implements Listener {
     //Adds players to the database on join if they aren't on it already
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerJoin(PlayerJoinEvent e){
-            DatabaseHandler database = new DatabaseHandler();
+        new BukkitRunnable(){
+            public void run(){
+                DatabaseHandler database = new DatabaseHandler();
 
-            Player player = e.getPlayer();
-            String uuid = player.getUniqueId().toString();
-            long playerFirstJoin;
+                Player player = e.getPlayer();
+                String uuid = player.getUniqueId().toString();
+                long playerFirstJoin;
 
-            Instant start = Instant.now();
-            if(!database.ifExist(uuid)){
-                System.out.println("UUID NOT IN DATABASE");
-                playerFirstJoin = ((OfflinePlayer) player).getFirstPlayed();
-                database.insert(uuid, playerFirstJoin);
+                if(!database.ifExist(uuid)){
+                    System.out.println("UUID NOT IN DATABASE");
+                    playerFirstJoin = ((OfflinePlayer) player).getFirstPlayed();
+                    database.insert(uuid, playerFirstJoin);
+                }
             }
-            Instant end = Instant.now();
-            System.out.println(Duration.between(start, end)); // prints PT1M3.553S
+
+        }.runTaskAsynchronously(plugin);
     }
 }
+
+/*
+new BukkitRunnable(){
+            public void run(){
+
+            }
+
+        }.runTaskAsynchronously(plugin);
+ */
