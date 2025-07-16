@@ -1,6 +1,7 @@
 package me.kyrobi;
 
 import com.google.common.base.Stopwatch;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -33,13 +34,17 @@ public class OnJoin implements Listener {
                 long playerFirstJoin;
 
                 if(!database.ifExist(uuid)){
-                    System.out.println("UUID NOT IN DATABASE");
+                    Bukkit.getLogger().info("UUID NOT IN DATABASE");
                     playerFirstJoin = ((OfflinePlayer) player).getFirstPlayed();
                     database.insert(uuid, playerFirstJoin);
                 }
             }
 
         }.runTaskAsynchronously(plugin);
+    }
+
+    public static String TestAPI(){
+        return "Poop";
     }
 }
 

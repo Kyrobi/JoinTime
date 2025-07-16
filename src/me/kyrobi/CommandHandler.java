@@ -8,6 +8,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.Period;
+import java.time.ZoneId;
 import java.util.Calendar;
 
 public class CommandHandler implements CommandExecutor {
@@ -157,31 +161,54 @@ public class CommandHandler implements CommandExecutor {
         return date;
     }
 
+//    private String millisecondsToTimeStamp(long milliSeconds) {
+//
+//        Calendar calendar = Calendar.getInstance();
+//        long currentMillis = calendar.getTimeInMillis();
+//
+//        double different = currentMillis - milliSeconds; // long upTime = bean.getUptime(); Time in ms
+//
+//        double secondsInMilli = 1000;
+//        double minutesInMilli = secondsInMilli * 60;
+//        double hoursInMilli = minutesInMilli * 60;
+//        double daysInMilli = hoursInMilli * 24;
+//        double monthsInMilli = daysInMilli * 30.4375; //Roughly than many days in a month including leap year and months containing 30 / 31 days
+//        double yearsInMilli = monthsInMilli * 12;
+//
+//        double years = different / yearsInMilli;
+//        different = different % yearsInMilli;
+//
+//        double months = different / monthsInMilli;
+//        different = different % monthsInMilli;
+//
+//        double days = different / daysInMilli;
+//
+//
+//        //System.out.println((int)years + "y " + (int)months + "m " + (int)days +"d");
+//        String elaspedTime = (int)years + "y " + (int)months + "m " + (int)days +"d";
+//        return elaspedTime;
+//    }
+
     private String millisecondsToTimeStamp(long milliSeconds) {
 
-        Calendar calendar = Calendar.getInstance();
-        long currentMillis = calendar.getTimeInMillis();
+        // Convert milliseconds to LocalDateTime
+        LocalDateTime pastTime = LocalDateTime.ofInstant(
+                Instant.ofEpochMilli(milliSeconds),
+                ZoneId.systemDefault()
+        );
 
-        double different = currentMillis - milliSeconds; // long upTime = bean.getUptime(); Time in ms
+        // Get current time
+        LocalDateTime currentTime = LocalDateTime.now();
 
-        double secondsInMilli = 1000;
-        double minutesInMilli = secondsInMilli * 60;
-        double hoursInMilli = minutesInMilli * 60;
-        double daysInMilli = hoursInMilli * 24;
-        double monthsInMilli = daysInMilli * 30.4375; //Roughly than many days in a month including leap year and months containing 30 / 31 days
-        double yearsInMilli = monthsInMilli * 12;
+        // Calculate the period between past time and current time
+        Period period = Period.between(pastTime.toLocalDate(), currentTime.toLocalDate());
 
-        double years = different / yearsInMilli;
-        different = different % yearsInMilli;
+        // Extract years, months, and days
+        int years = period.getYears();
+        int months = period.getMonths();
+        int days = period.getDays();
 
-        double months = different / monthsInMilli;
-        different = different % monthsInMilli;
-
-        double days = different / daysInMilli;
-
-
-        //System.out.println((int)years + "y " + (int)months + "m " + (int)days +"d");
-        String elaspedTime = (int)years + "y " + (int)months + "m " + (int)days +"d";
-        return elaspedTime;
+        // Format the result
+        return String.format("%d years, %d months, %d days", years, months, days);
     }
 }
